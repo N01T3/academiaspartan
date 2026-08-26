@@ -52,66 +52,59 @@ function remove(p: Program) {
 
 <template>
   <div>
-    <div class="mb-6 flex items-center justify-between">
+    <div class="d-flex align-center justify-space-between mb-4">
       <div>
-        <h1 class="text-2xl font-bold text-white">Programas & Modalidades</h1>
-        <p class="mt-1 text-sm text-zinc-400">Gerencie os programas oferecidos.</p>
+        <h1 class="text-h5">Programas & Modalidades</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">Gerencie os programas oferecidos.</p>
       </div>
-      <button type="button" class="btn-primary" @click="openNew">Novo programa</button>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openNew">Novo programa</v-btn>
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2">
-      <div v-for="p in content.programs" :key="p.id" class="card flex flex-col">
-        <img :src="p.image" :alt="p.title" class="mb-4 h-40 w-full rounded object-cover" />
-        <div class="mb-2 flex items-center justify-between">
-          <h3 class="font-bold text-white">{{ p.title }}</h3>
-          <span class="rounded bg-primary px-2 py-1 text-xs font-bold uppercase text-white">{{ p.tag }}</span>
-        </div>
-        <p class="line-clamp-2 text-sm text-zinc-400">{{ p.description }}</p>
-        <div class="mt-4 flex justify-end gap-3 border-t border-ink-600 pt-3">
-          <button type="button" class="text-accent hover:underline" @click="openEdit(p)">Editar</button>
-          <button type="button" class="text-red-400 hover:underline" @click="remove(p)">Excluir</button>
-        </div>
-      </div>
-    </div>
+    <v-row>
+      <v-col v-for="p in content.programs" :key="p.id" cols="12" sm="6">
+        <v-card height="100%">
+          <v-img :src="p.image" :alt="p.title" height="140" cover class="mx-3 mt-3 rounded" />
+          <v-card-text>
+            <div class="d-flex align-center justify-space-between">
+              <h3 class="text-subtitle-1 font-weight-bold">{{ p.title }}</h3>
+              <v-chip color="primary" size="small" class="text-uppercase">{{ p.tag }}</v-chip>
+            </div>
+            <p class="text-body-2 text-medium-emphasis mt-2 program-desc">{{ p.description }}</p>
+            <v-divider class="my-3" />
+            <div class="d-flex justify-end ga-1">
+              <v-btn size="small" variant="text" color="secondary" @click="openEdit(p)">Editar</v-btn>
+              <v-btn size="small" variant="text" color="error" @click="remove(p)">Excluir</v-btn>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <BaseModal
       :open="modalOpen"
       :title="editingId ? 'Editar programa' : 'Novo programa'"
       @close="modalOpen = false"
     >
-      <form class="space-y-4" @submit.prevent="save">
-        <div>
-          <label class="label">Título</label>
-          <input v-model="form.title" type="text" required class="input" />
+      <v-form @submit.prevent="save">
+        <v-text-field v-model="form.title" label="Título" />
+        <v-text-field v-model="form.tag" label="Tag" placeholder="Diferencial, Performance..." />
+        <v-textarea v-model="form.description" label="Descrição" rows="3" auto-grow />
+        <v-text-field v-model="form.featuresText" label="Recursos (separados por vírgula)" />
+        <v-text-field v-model="form.image" label="Imagem (URL)" />
+        <div class="d-flex justify-end ga-2">
+          <v-btn variant="outlined" @click="modalOpen = false">Cancelar</v-btn>
+          <v-btn type="submit" color="primary">Salvar</v-btn>
         </div>
-        <div>
-          <label class="label">Tag</label>
-          <input
-            v-model="form.tag"
-            type="text"
-            required
-            class="input"
-            placeholder="Diferencial, Performance..."
-          />
-        </div>
-        <div>
-          <label class="label">Descrição</label>
-          <textarea v-model="form.description" rows="3" required class="input resize-none"></textarea>
-        </div>
-        <div>
-          <label class="label">Recursos (separados por vírgula)</label>
-          <input v-model="form.featuresText" type="text" class="input" />
-        </div>
-        <div>
-          <label class="label">Imagem (URL)</label>
-          <input v-model="form.image" type="url" required class="input" />
-        </div>
-        <div class="flex justify-end gap-3">
-          <button type="button" class="btn-outline" @click="modalOpen = false">Cancelar</button>
-          <button type="submit" class="btn-primary">Salvar</button>
-        </div>
-      </form>
+      </v-form>
     </BaseModal>
   </div>
 </template>
+
+<style scoped>
+.program-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

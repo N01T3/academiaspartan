@@ -3,14 +3,15 @@ import { computed, ref } from 'vue'
 import { transactions as seedTx, plans as seedPlans } from '@/data/finance'
 import { loadStorage, saveStorage } from '@/utils/storage'
 import { uid } from '@/utils/format'
+import { isPlans, isTransactions } from '@/utils/validators'
 import type { Plan, Transaction } from '@/types'
 
 const TX_KEY = 'spartan.transactions'
 const PLAN_KEY = 'spartan.plans'
 
 export const useFinanceStore = defineStore('finance', () => {
-  const transactions = ref<Transaction[]>(loadStorage(TX_KEY, seedTx))
-  const plans = ref<Plan[]>(loadStorage(PLAN_KEY, seedPlans))
+  const transactions = ref<Transaction[]>(loadStorage(TX_KEY, seedTx, isTransactions))
+  const plans = ref<Plan[]>(loadStorage(PLAN_KEY, seedPlans, isPlans))
 
   function persistTx() {
     saveStorage(TX_KEY, transactions.value)

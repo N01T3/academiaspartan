@@ -41,60 +41,55 @@ function remove(t: Testimonial) {
 
 <template>
   <div>
-    <div class="mb-6 flex items-center justify-between">
+    <div class="d-flex align-center justify-space-between mb-4">
       <div>
-        <h1 class="text-2xl font-bold text-white">Depoimentos</h1>
-        <p class="mt-1 text-sm text-zinc-400">Gerencie os depoimentos exibidos no site.</p>
+        <h1 class="text-h5">Depoimentos</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">Gerencie os depoimentos exibidos no site.</p>
       </div>
-      <button type="button" class="btn-primary" @click="openNew">Novo depoimento</button>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openNew">Novo depoimento</v-btn>
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <div v-for="t in content.testimonials" :key="t.id" class="card">
-        <p class="text-sm text-zinc-300">"{{ t.quote }}"</p>
-        <div class="mt-4 flex items-center justify-between border-t border-ink-600 pt-4">
-          <div class="flex items-center gap-3">
-            <img :src="t.image" :alt="t.name" class="h-10 w-10 rounded-full object-cover" />
-            <div>
-              <p class="text-sm font-bold text-white">{{ t.name }}</p>
-              <p class="text-xs text-accent">{{ t.role }}</p>
+    <v-row>
+      <v-col v-for="t in content.testimonials" :key="t.id" cols="12" sm="6" lg="4">
+        <v-card height="100%">
+          <v-card-text>
+            <p class="text-body-2 text-high-emphasis">"{{ t.quote }}"</p>
+            <v-divider class="my-3" />
+            <div class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center ga-3">
+                <v-avatar size="40">
+                  <v-img :src="t.image" :alt="t.name" cover />
+                </v-avatar>
+                <div>
+                  <p class="text-body-2 font-weight-bold">{{ t.name }}</p>
+                  <p class="text-caption text-secondary">{{ t.role }}</p>
+                </div>
+              </div>
+              <div class="d-flex ga-1">
+                <v-btn size="small" variant="text" color="secondary" @click="openEdit(t)">Editar</v-btn>
+                <v-btn size="small" variant="text" color="error" @click="remove(t)">Excluir</v-btn>
+              </div>
             </div>
-          </div>
-          <div class="flex gap-3 text-sm">
-            <button type="button" class="text-accent hover:underline" @click="openEdit(t)">Editar</button>
-            <button type="button" class="text-red-400 hover:underline" @click="remove(t)">Excluir</button>
-          </div>
-        </div>
-      </div>
-    </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <BaseModal
       :open="modalOpen"
       :title="editingId ? 'Editar depoimento' : 'Novo depoimento'"
       @close="modalOpen = false"
     >
-      <form class="space-y-4" @submit.prevent="save">
-        <div>
-          <label class="label">Nome</label>
-          <input v-model="form.name" type="text" required class="input" />
+      <v-form @submit.prevent="save">
+        <v-text-field v-model="form.name" label="Nome" />
+        <v-text-field v-model="form.role" label="Função / modalidade" />
+        <v-textarea v-model="form.quote" label="Depoimento" rows="4" auto-grow />
+        <v-text-field v-model="form.image" label="Foto (URL)" />
+        <div class="d-flex justify-end ga-2">
+          <v-btn variant="outlined" @click="modalOpen = false">Cancelar</v-btn>
+          <v-btn type="submit" color="primary">Salvar</v-btn>
         </div>
-        <div>
-          <label class="label">Função / modalidade</label>
-          <input v-model="form.role" type="text" required class="input" />
-        </div>
-        <div>
-          <label class="label">Depoimento</label>
-          <textarea v-model="form.quote" rows="4" required class="input resize-none"></textarea>
-        </div>
-        <div>
-          <label class="label">Foto (URL)</label>
-          <input v-model="form.image" type="url" required class="input" />
-        </div>
-        <div class="flex justify-end gap-3">
-          <button type="button" class="btn-outline" @click="modalOpen = false">Cancelar</button>
-          <button type="submit" class="btn-primary">Salvar</button>
-        </div>
-      </form>
+      </v-form>
     </BaseModal>
   </div>
 </template>

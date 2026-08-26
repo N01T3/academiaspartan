@@ -9,6 +9,15 @@ import { siteConfig as seedConfig } from '@/data/site-config'
 import { messages as seedMessages } from '@/data/messages'
 import { loadStorage, saveStorage } from '@/utils/storage'
 import { uid } from '@/utils/format'
+import {
+  isGallery,
+  isMessages,
+  isPosts,
+  isPrograms,
+  isSiteConfig,
+  isTeam,
+  isTestimonials,
+} from '@/utils/validators'
 import type {
   BlogPost,
   ContactMessage,
@@ -30,13 +39,13 @@ const KEYS = {
 } as const
 
 export const useContentStore = defineStore('content', () => {
-  const team = ref<TeamMember[]>(loadStorage(KEYS.team, seedTeam))
-  const programs = ref<Program[]>(loadStorage(KEYS.programs, seedPrograms))
-  const posts = ref<BlogPost[]>(loadStorage(KEYS.posts, seedPosts))
-  const testimonials = ref<Testimonial[]>(loadStorage(KEYS.testimonials, seedTestimonials))
-  const gallery = ref<GalleryImage[]>(loadStorage(KEYS.gallery, seedGallery))
-  const config = ref<SiteConfig>(loadStorage(KEYS.config, seedConfig))
-  const messages = ref<ContactMessage[]>(loadStorage(KEYS.messages, seedMessages))
+  const team = ref<TeamMember[]>(loadStorage(KEYS.team, seedTeam, isTeam))
+  const programs = ref<Program[]>(loadStorage(KEYS.programs, seedPrograms, isPrograms))
+  const posts = ref<BlogPost[]>(loadStorage(KEYS.posts, seedPosts, isPosts))
+  const testimonials = ref<Testimonial[]>(loadStorage(KEYS.testimonials, seedTestimonials, isTestimonials))
+  const gallery = ref<GalleryImage[]>(loadStorage(KEYS.gallery, seedGallery, isGallery))
+  const config = ref<SiteConfig>(loadStorage(KEYS.config, seedConfig, isSiteConfig))
+  const messages = ref<ContactMessage[]>(loadStorage(KEYS.messages, seedMessages, isMessages))
 
   function persist(key: string, value: unknown) {
     saveStorage(key, value)

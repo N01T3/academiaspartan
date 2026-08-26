@@ -2,12 +2,13 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { erpModules as seedErp } from '@/data/erp'
 import { loadStorage, saveStorage } from '@/utils/storage'
+import { isErpModules } from '@/utils/validators'
 import type { ErpModule } from '@/types'
 
 const KEY = 'spartan.erp'
 
 export const useErpStore = defineStore('erp', () => {
-  const modules = ref<ErpModule[]>(loadStorage(KEY, seedErp))
+  const modules = ref<ErpModule[]>(loadStorage(KEY, seedErp, isErpModules))
 
   function persist() {
     saveStorage(KEY, modules.value)

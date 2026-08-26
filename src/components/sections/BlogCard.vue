@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
 import { formatDate } from '@/utils/format'
 import type { BlogPost } from '@/types'
 
@@ -9,29 +8,34 @@ defineProps<{
 </script>
 
 <template>
-  <RouterLink
-    :to="`/blog/${post.slug}`"
-    class="group overflow-hidden rounded-lg border border-ink-500 bg-ink-800 transition-colors hover:border-primary"
-  >
-    <div class="relative aspect-[16/9] overflow-hidden">
-      <img
-        :src="post.image"
-        :alt="post.title"
-        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        loading="lazy"
-      />
-      <span
-        class="absolute left-4 top-4 rounded bg-ink/80 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white"
-      >
+  <v-card :to="`/blog/${post.slug}`" class="lift overflow-hidden text-decoration-none" height="100%">
+    <div class="blog-media">
+      <v-img :src="post.image" :alt="post.title" cover aspect-ratio="16/9" />
+      <v-chip color="background" size="small" class="blog-tag text-uppercase">
         {{ post.category }}
-      </span>
+      </v-chip>
     </div>
-    <div class="p-6">
-      <p class="text-xs text-zinc-500">{{ formatDate(post.publishedAt) }} · {{ post.author }}</p>
-      <h3 class="mt-2 text-lg font-bold text-white transition-colors group-hover:text-primary">
-        {{ post.title }}
-      </h3>
-      <p class="mt-2 line-clamp-3 text-sm text-zinc-400">{{ post.excerpt }}</p>
-    </div>
-  </RouterLink>
+    <v-card-text>
+      <p class="text-caption text-medium-emphasis">{{ formatDate(post.publishedAt) }} · {{ post.author }}</p>
+      <h3 class="text-subtitle-1 font-weight-bold mt-1">{{ post.title }}</h3>
+      <p
+        class="text-body-2 text-medium-emphasis mt-2"
+        style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden"
+      >
+        {{ post.excerpt }}
+      </p>
+    </v-card-text>
+  </v-card>
 </template>
+
+<style scoped>
+.blog-media {
+  position: relative;
+}
+
+.blog-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+</style>

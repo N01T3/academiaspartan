@@ -2,15 +2,17 @@
 import { useContentStore } from '@/store/content'
 import SectionTitle from '@/components/ui/SectionTitle.vue'
 import { useMeta } from '@/composables/useMeta'
+import { useReveal } from '@/composables/useReveal'
 
 useMeta({ title: 'Estrutura — Academia Spartan', description: 'Conheça nossa estrutura completa.' })
 
 const content = useContentStore()
+const { reveal } = useReveal()
 </script>
 
 <template>
   <div>
-    <section class="border-b border-ink-600 bg-ink-800 py-16 sm:py-20">
+    <section class="page-hero">
       <div class="container-content">
         <SectionTitle
           eyebrow="Estrutura"
@@ -22,26 +24,27 @@ const content = useContentStore()
 
     <section class="section">
       <div class="container-content">
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div
-            v-for="img in content.gallery"
-            :key="img.id"
-            class="group relative aspect-square overflow-hidden rounded-lg"
-          >
-            <img
-              :src="img.src"
-              :alt="img.alt"
-              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
-            />
-            <div
-              class="absolute inset-0 flex items-end bg-gradient-to-t from-ink/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              <p class="p-4 font-semibold text-white">{{ img.alt }}</p>
+        <v-row>
+          <v-col v-for="(img, i) in content.gallery" :key="img.id" cols="12" sm="6" lg="4">
+            <div class="reveal" v-intersect="reveal" :data-reveal-delay="i * 80">
+              <v-card class="overflow-hidden lift">
+                <v-img :src="img.src" :alt="img.alt" cover aspect-ratio="1" />
+                <v-card-text>
+                  <p class="text-body-2 text-high-emphasis">{{ img.alt }}</p>
+                </v-card-text>
+              </v-card>
             </div>
-          </div>
-        </div>
+          </v-col>
+        </v-row>
       </div>
     </section>
   </div>
 </template>
+
+<style scoped>
+.page-hero {
+  padding: 4rem 0;
+  background: linear-gradient(180deg, #14181e 0%, #0b0d10 100%);
+  border-bottom: 1px solid #1a1f27;
+}
+</style>

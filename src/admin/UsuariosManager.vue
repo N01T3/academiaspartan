@@ -21,6 +21,14 @@ const form = reactive<Omit<AdminUser, 'id'>>({
   active: true,
 })
 
+const headers = [
+  { title: 'Nome', key: 'name' },
+  { title: 'Usuário', key: 'username' },
+  { title: 'Papel', key: 'role' },
+  { title: 'Ativo', key: 'active' },
+  { title: 'Ações', key: 'actions', sortable: false, align: 'end' },
+] as const
+
 function openNew() {
   editingId.value = null
   Object.assign(form, { name: '', email: '', username: '', password: '', role: 'editor', active: true })
@@ -50,93 +58,72 @@ function remove(u: AdminUser) {
 
 <template>
   <div>
-    <div class="mb-6 flex items-center justify-between">
+    <div class="d-flex align-center justify-space-between mb-4">
       <div>
-        <h1 class="text-2xl font-bold text-white">Usuários</h1>
-        <p class="mt-1 text-sm text-zinc-400">Gerencie os acessos ao painel administrativo.</p>
+        <h1 class="text-h5">Usuários</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">Gerencie os acessos ao painel administrativo.</p>
       </div>
-      <button type="button" class="btn-primary" @click="openNew">Novo usuário</button>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openNew">Novo usuário</v-btn>
     </div>
 
-    <div class="card overflow-x-auto p-0">
-      <table class="w-full text-left text-sm">
-        <thead class="border-b border-ink-500 text-xs uppercase tracking-wider text-zinc-400">
-          <tr>
-            <th class="px-4 py-3">Nome</th>
-            <th class="px-4 py-3">Usuário</th>
-            <th class="px-4 py-3">Papel</th>
-            <th class="px-4 py-3">Ativo</th>
-            <th class="px-4 py-3 text-right">Ações</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-ink-600">
-          <tr v-for="u in usersStore.users" :key="u.id" class="hover:bg-ink-700/50">
-            <td class="px-4 py-3 font-medium text-white">{{ u.name }}</td>
-            <td class="px-4 py-3 text-zinc-300">{{ u.username }}</td>
-            <td class="px-4 py-3">
-              <span
-                class="rounded px-2 py-1 text-xs font-bold uppercase"
-                :class="u.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-ink-700 text-zinc-300'"
-              >
-                {{ u.role }}
-              </span>
-            </td>
-            <td class="px-4 py-3">
-              <span :class="u.active ? 'text-green-400' : 'text-zinc-500'">{{
-                u.active ? 'Sim' : 'Não'
-              }}</span>
-            </td>
-            <td class="px-4 py-3 text-right">
-              <button type="button" class="mr-2 text-accent hover:underline" @click="openEdit(u)">
-                Editar
-              </button>
-              <button type="button" class="text-red-400 hover:underline" @click="remove(u)">Excluir</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <v-card>
+      <v-data-table :headers="headers" :items="usersStore.users" :items-per-page="-1" hover>
+        <template #item.role="{ item }">
+          <v-chip
+            :color="item.role === 'admin' ? 'primary' : 'surface-bright'"
+            size="small"
+            class="text-uppercase"
+          >
+            {{ item.role }}
+          </v-chip>
+        </template>
+        <template #item.active="{ item }">
+          <span :class="item.active ? 'text-success' : 'text-medium-emphasis'">
+            {{ item.active ? 'Sim' : 'Não' }}
+          </span>
+        </template>
+        <template #item.actions="{ item }">
+          <div class="d-flex justify-end ga-1">
+            <v-btn size="small" variant="text" color="secondary" @click="openEdit(item)">Editar</v-btn>
+            <v-btn size="small" variant="text" color="error" @click="remove(item)">Excluir</v-btn>
+          </div>
+        </template>
+      </v-data-table>
+    </v-card>
 
     <BaseModal
       :open="modalOpen"
       :title="editingId ? 'Editar usuário' : 'Novo usuário'"
       @close="modalOpen = false"
     >
-      <form class="space-y-4" @submit.prevent="save">
-        <div>
-          <label class="label">Nome</label>
-          <input v-model="form.name" type="text" required class="input" />
-        </div>
-        <div>
-          <label class="label">E-mail</label>
-          <input v-model="form.email" type="email" required class="input" />
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label class="label">Usuário</label>
-            <input v-model="form.username" type="text" required class="input" />
-          </div>
-          <div>
-            <label class="label">Senha</label>
-            <input v-model="form.password" type="text" required class="input" />
-          </div>
-        </div>
-        <div>
-          <label class="label">Papel</label>
-          <select v-model="form.role" class="input">
-            <option value="admin">Administrador</option>
-            <option value="editor">Editor</option>
-          </select>
-        </div>
-        <div class="flex items-center gap-3">
+      <v-form @submit.prevent="save">
+        <v-text-field v-model="form.name" label="Nome" />
+        <v-text-field v-model="form.email" label="E-mail" type="email" />
+        <v-row>
+          <v-col cols="12" sm="6">
+            <v-text-field v-model="form.username" label="Usuário" />
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-text-field v-model="form.password" label="Senha" />
+          </v-col>
+        </v-row>
+        <v-select
+          v-model="form.role"
+          label="Papel"
+          :items="[
+            { title: 'Administrador', value: 'admin' },
+            { title: 'Editor', value: 'editor' },
+          ]"
+        />
+        <div class="d-flex align-center ga-3">
           <ToggleSwitch v-model="form.active" />
-          <span class="text-sm text-zinc-300">Ativo</span>
+          <span class="text-body-2">Ativo</span>
         </div>
-        <div class="flex justify-end gap-3">
-          <button type="button" class="btn-outline" @click="modalOpen = false">Cancelar</button>
-          <button type="submit" class="btn-primary">Salvar</button>
+        <div class="d-flex justify-end ga-2 mt-2">
+          <v-btn variant="outlined" @click="modalOpen = false">Cancelar</v-btn>
+          <v-btn type="submit" color="primary">Salvar</v-btn>
         </div>
-      </form>
+      </v-form>
     </BaseModal>
   </div>
 </template>

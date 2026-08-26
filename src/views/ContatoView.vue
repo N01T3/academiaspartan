@@ -19,8 +19,15 @@ const form = reactive({
 
 const sent = ref(false)
 const submitting = ref(false)
+const valid = ref(false)
+
+const rules = {
+  required: (v: string) => !!v || 'Campo obrigatório',
+  email: (v: string) => /.+@.+\..+/.test(v) || 'E-mail inválido',
+}
 
 function submit() {
+  if (!valid.value) return
   submitting.value = true
   setTimeout(() => {
     content.addMessage({ ...form })
@@ -38,7 +45,7 @@ function submit() {
 
 <template>
   <div>
-    <section class="border-b border-ink-600 bg-ink-800 py-16 sm:py-20">
+    <section class="page-hero">
       <div class="container-content">
         <SectionTitle
           eyebrow="Contato"
@@ -49,160 +56,118 @@ function submit() {
     </section>
 
     <section class="section">
-      <div class="container-content grid gap-12 lg:grid-cols-2">
-        <div>
-          <h2 class="text-2xl font-bold text-white">Envie uma mensagem</h2>
+      <div class="container-content">
+        <v-row>
+          <v-col cols="12" lg="7">
+            <h2 class="text-h5">Envie uma mensagem</h2>
 
-          <form class="mt-6 space-y-5" @submit.prevent="submit">
-            <div>
-              <label class="label" for="name">Nome</label>
-              <input
-                id="name"
-                v-model="form.name"
-                type="text"
-                required
-                class="input"
-                placeholder="Seu nome"
-              />
-            </div>
-            <div class="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label class="label" for="email">E-mail</label>
-                <input
-                  id="email"
-                  v-model="form.email"
-                  type="email"
-                  required
-                  class="input"
-                  placeholder="voce@email.com"
-                />
-              </div>
-              <div>
-                <label class="label" for="phone">Telefone</label>
-                <input
-                  id="phone"
-                  v-model="form.phone"
-                  type="tel"
-                  class="input"
-                  placeholder="(11) 99999-0000"
-                />
-              </div>
-            </div>
-            <div>
-              <label class="label" for="subject">Assunto</label>
-              <input
-                id="subject"
-                v-model="form.subject"
-                type="text"
-                required
-                class="input"
-                placeholder="Aula experimental, planos..."
-              />
-            </div>
-            <div>
-              <label class="label" for="message">Mensagem</label>
-              <textarea
-                id="message"
+            <v-form v-model="valid" class="mt-4" @submit.prevent="submit">
+              <v-text-field v-model="form.name" label="Nome" :rules="[rules.required]" />
+              <v-row>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="form.email"
+                    label="E-mail"
+                    type="email"
+                    :rules="[rules.required, rules.email]"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field v-model="form.phone" label="Telefone" type="tel" />
+                </v-col>
+              </v-row>
+              <v-text-field v-model="form.subject" label="Assunto" :rules="[rules.required]" />
+              <v-textarea
                 v-model="form.message"
-                rows="5"
-                required
-                class="input resize-none"
-                placeholder="Escreva sua mensagem"
-              ></textarea>
-            </div>
+                label="Mensagem"
+                rows="4"
+                :rules="[rules.required]"
+                auto-grow
+              />
 
-            <p
-              v-if="sent"
-              class="rounded border border-green-600 bg-green-600/10 px-4 py-3 text-sm text-green-400"
-            >
-              Mensagem enviada com sucesso! Retornaremos em breve.
-            </p>
+              <v-alert
+                v-if="sent"
+                type="success"
+                class="mb-4"
+                text="Mensagem enviada com sucesso! Retornaremos em breve."
+              />
 
-            <UiButton type="submit" :disabled="submitting">
-              {{ submitting ? 'Enviando...' : 'Enviar mensagem' }}
-            </UiButton>
-          </form>
-        </div>
+              <UiButton type="submit" :disabled="submitting" size="large">
+                {{ submitting ? 'Enviando...' : 'Enviar mensagem' }}
+              </UiButton>
+            </v-form>
+          </v-col>
 
-        <div class="space-y-8">
-          <div class="card">
-            <h3 class="text-lg font-bold text-white">Informações</h3>
-            <ul class="mt-4 space-y-3 text-sm text-zinc-300">
-              <li class="flex items-center gap-3">
-                <span class="text-accent">
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M17.7 13.3l3.3 1.4-2 5.3a2 2 0 0 1-2.5 1.1A16.6 16.6 0 0 1 3 5.5 2 2 0 0 1 4.1 3l5.3-2 1.4 3.3-2.3 2.3a13.6 13.6 0 0 0 6.9 6.9l2.3-2.3Z"
-                    />
-                  </svg>
-                </span>
-                <a :href="`tel:${content.config.phone}`" class="transition-colors hover:text-primary">{{
-                  content.config.phone
-                }}</a>
-              </li>
-              <li class="flex items-center gap-3">
-                <span class="text-accent">
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2Zm18 2-10 7L2 6"
-                    />
-                  </svg>
-                </span>
-                <a :href="`mailto:${content.config.email}`" class="transition-colors hover:text-primary">{{
-                  content.config.email
-                }}</a>
-              </li>
-              <li class="flex items-center gap-3">
-                <span class="text-accent">
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"
-                    />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                </span>
-                {{ content.config.address }}
-              </li>
-            </ul>
-          </div>
+          <v-col cols="12" lg="5">
+            <v-card class="pa-6 mb-6">
+              <h3 class="text-subtitle-1 font-weight-bold">Informações</h3>
+              <v-list class="bg-transparent mt-2">
+                <v-list-item
+                  :href="`tel:${content.config.phone}`"
+                  :prepend-icon="'mdi-phone'"
+                  :title="content.config.phone"
+                />
+                <v-list-item
+                  :href="`mailto:${content.config.email}`"
+                  :prepend-icon="'mdi-email-outline'"
+                  :title="content.config.email"
+                />
+                <v-list-item :prepend-icon="'mdi-map-marker-outline'" :title="content.config.address" />
+              </v-list>
+            </v-card>
 
-          <div class="card">
-            <h3 class="text-lg font-bold text-white">Horário de funcionamento</h3>
-            <ul class="mt-4 divide-y divide-ink-600">
-              <li v-for="h in content.config.hours" :key="h.day" class="flex justify-between py-2 text-sm">
-                <span class="text-zinc-300">{{ h.day }}</span>
-                <span class="font-semibold text-white">{{ h.time }}</span>
-              </li>
-            </ul>
-          </div>
+            <v-card class="pa-6 mb-6">
+              <h3 class="text-subtitle-1 font-weight-bold">Horário de funcionamento</h3>
+              <v-divider class="my-3" />
+              <div v-for="h in content.config.hours" :key="h.day" class="d-flex justify-space-between py-2">
+                <span class="text-body-2 text-medium-emphasis">{{ h.day }}</span>
+                <span class="text-body-2 font-weight-bold">{{ h.time }}</span>
+              </div>
+            </v-card>
 
-          <div class="card">
-            <h3 class="text-lg font-bold text-white">Chamada rápida</h3>
-            <a :href="`tel:${content.config.phone}`" class="btn-accent mt-4 w-full">Ligar agora</a>
-          </div>
-        </div>
+            <v-card class="pa-6" color="primary">
+              <h3 class="text-subtitle-1 font-weight-bold text-white">Chamada rápida</h3>
+              <p class="text-body-2 mt-1" style="color: rgba(255, 255, 255, 0.85)">
+                Fale agora mesmo com a nossa equipe.
+              </p>
+              <v-btn
+                :href="`tel:${content.config.phone}`"
+                color="secondary"
+                class="mt-3 text-uppercase"
+                size="large"
+                block
+              >
+                Ligar agora
+              </v-btn>
+            </v-card>
+          </v-col>
+        </v-row>
       </div>
     </section>
 
-    <section class="pb-16">
-      <div class="container-content overflow-hidden rounded-lg border border-ink-500">
-        <iframe
-          :src="content.config.mapEmbed"
-          width="100%"
-          height="400"
-          style="border: 0"
-          allowfullscreen
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          title="Localização da Academia Spartan"
-        ></iframe>
+    <section class="pb-12">
+      <div class="container-content">
+        <v-card class="overflow-hidden">
+          <iframe
+            :src="content.config.mapEmbed"
+            width="100%"
+            height="400"
+            style="border: 0"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Localização da Academia Spartan"
+          ></iframe>
+        </v-card>
       </div>
     </section>
   </div>
 </template>
+
+<style scoped>
+.page-hero {
+  padding: 4rem 0;
+  background: linear-gradient(180deg, #14181e 0%, #0b0d10 100%);
+  border-bottom: 1px solid #1a1f27;
+}
+</style>

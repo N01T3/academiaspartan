@@ -15,7 +15,10 @@ export function useMeta(options: MetaOptions) {
     ensureMeta('description', options.description ?? '')
     ensureMeta('og:title', options.title)
     ensureMeta('og:description', options.description ?? '')
-    ensureMeta('og:image', options.image ?? `${window.location.origin}${import.meta.env.BASE_URL}logo.png`)
+    ensureMeta(
+      'og:image',
+      options.image ?? new URL(import.meta.env.BASE_URL + 'logo.png', window.location.origin).href,
+    )
     ensureMeta('og:url', window.location.href)
     ensureMeta('og:type', 'website')
   }

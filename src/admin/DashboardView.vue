@@ -13,22 +13,30 @@ const kpis = [
   { label: 'Programas', value: content.programs.length },
   { label: 'Mensagens não lidas', value: content.messages.filter((m) => !m.read).length },
 ]
+
+const financeKpis = [
+  { label: 'Receita total', value: formatCurrency(finance.totalIncome), accent: true },
+  { label: 'Despesas', value: formatCurrency(finance.totalExpense) },
+  { label: 'Saldo', value: formatCurrency(finance.balance) },
+  { label: 'Alunos ativos', value: finance.activeStudents },
+]
 </script>
 
 <template>
   <div>
-    <h1 class="text-2xl font-bold text-white">Dashboard</h1>
-    <p class="mt-1 text-sm text-zinc-400">Visão geral da Academia Spartan.</p>
+    <h1 class="text-h5">Dashboard</h1>
+    <p class="text-body-2 text-medium-emphasis mt-1">Visão geral da Academia Spartan.</p>
 
-    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <KpiCard v-for="kpi in kpis" :key="kpi.label" :label="kpi.label" :value="kpi.value" />
-    </div>
+    <v-row class="mt-4">
+      <v-col v-for="kpi in kpis" :key="kpi.label" cols="12" sm="6" lg="3">
+        <KpiCard :label="kpi.label" :value="kpi.value" />
+      </v-col>
+    </v-row>
 
-    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <KpiCard label="Receita total" :value="formatCurrency(finance.totalIncome)" accent />
-      <KpiCard label="Despesas" :value="formatCurrency(finance.totalExpense)" />
-      <KpiCard label="Saldo" :value="formatCurrency(finance.balance)" />
-      <KpiCard label="Alunos ativos" :value="finance.activeStudents" />
-    </div>
+    <v-row class="mt-2">
+      <v-col v-for="kpi in financeKpis" :key="kpi.label" cols="12" sm="6" lg="3">
+        <KpiCard :label="kpi.label" :value="kpi.value" :accent="kpi.accent" />
+      </v-col>
+    </v-row>
   </div>
 </template>

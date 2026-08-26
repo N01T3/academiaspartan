@@ -8,36 +8,39 @@ const props = withDefaults(
     to?: string
     href?: string
     disabled?: boolean
+    size?: 'small' | 'default' | 'large'
+    block?: boolean
   }>(),
   {
     variant: 'primary',
     type: 'button',
     disabled: false,
+    size: 'default',
+    block: false,
   },
 )
 
-const cls = computed(() => {
-  const map = {
-    primary: 'btn-primary',
-    accent: 'btn-accent',
-    outline: 'btn-outline',
-  } as const
-  return map[props.variant]
-})
+const color = computed(() => (props.variant === 'accent' ? 'secondary' : 'primary'))
+const vVariant = computed(() => (props.variant === 'outline' ? 'outlined' : 'flat'))
+const vSize = computed(() =>
+  props.size === 'large' ? 'x-large' : props.size === 'small' ? 'small' : 'default',
+)
 </script>
 
 <template>
-  <component
-    :is="to ? 'RouterLink' : href ? 'a' : 'button'"
+  <v-btn
+    :color="color"
+    :variant="vVariant"
     :to="to"
     :href="href"
     :type="href || to ? undefined : type"
     :disabled="disabled"
-    class="cursor-pointer"
-    :class="cls"
+    :size="vSize"
+    :block="block"
     :target="href ? '_blank' : undefined"
     :rel="href ? 'noopener' : undefined"
+    class="text-uppercase font-weight-bold"
   >
     <slot />
-  </component>
+  </v-btn>
 </template>
