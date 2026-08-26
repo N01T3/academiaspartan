@@ -6,6 +6,7 @@ import { useAuth } from '@/composables/useAuth'
 const auth = useAuth()
 const router = useRouter()
 const open = ref(false)
+const base = import.meta.env.BASE_URL
 
 const nav = [
   { to: '/admin', label: 'Dashboard', icon: 'M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10', adminOnly: false },
@@ -68,7 +69,7 @@ function logout() {
       :class="open ? 'translate-x-0' : '-translate-x-full'"
     >
       <div class="flex h-16 items-center gap-3 border-b border-ink-600 px-6">
-        <img src="/logo.png" alt="Logo" class="h-8 w-auto" />
+        <img :src="base + 'logo.png'" alt="Logo" class="h-8 w-auto" />
         <span class="font-display text-sm font-bold uppercase tracking-widest text-white">Admin</span>
       </div>
       <nav class="flex-1 overflow-y-auto p-4">

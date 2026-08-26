@@ -13,6 +13,7 @@ const router = useRouter()
 
 const form = reactive({ username: '', password: '' })
 const error = ref('')
+const base = import.meta.env.BASE_URL
 
 function submit() {
   error.value = ''
@@ -30,7 +31,7 @@ function submit() {
   <div class="flex min-h-screen items-center justify-center bg-ink px-4">
     <div class="w-full max-w-md">
       <div class="mb-8 flex flex-col items-center gap-4 text-center">
-        <img src="/logo.png" alt="Logo Academia Spartan" class="h-16 w-auto" />
+        <img :src="base + 'logo.png'" alt="Logo Academia Spartan" class="h-16 w-auto" />
         <div>
           <h1 class="text-2xl font-bold text-white">Área administrativa</h1>
           <p class="mt-2 text-sm text-zinc-400">Acesso restrito à equipe Spartan.</p>

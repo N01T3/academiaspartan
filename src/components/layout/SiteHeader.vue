@@ -12,13 +12,14 @@ const links = [
 ]
 
 const open = ref(false)
+const base = import.meta.env.BASE_URL
 </script>
 
 <template>
   <header class="sticky top-0 z-40 border-b border-ink-600 bg-ink/90 backdrop-blur">
     <div class="container-content flex h-16 items-center justify-between sm:h-20">
       <RouterLink to="/" class="flex items-center gap-3" @click="open = false">
-        <img src="/logo.png" alt="Logo Academia Spartan" class="h-10 w-auto sm:h-12" />
+        <img :src="base + 'logo.png'" alt="Logo Academia Spartan" class="h-10 w-auto sm:h-12" />
         <span class="font-display text-lg font-bold uppercase tracking-widest text-white sm:text-xl">
           Academia <span class="text-primary">Spartan</span>
         </span>

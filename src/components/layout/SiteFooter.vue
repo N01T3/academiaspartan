@@ -4,6 +4,7 @@ import { useContentStore } from '@/store/content'
 import InstagramFeed from '@/components/layout/InstagramFeed.vue'
 
 const content = useContentStore()
+const base = import.meta.env.BASE_URL
 
 const links = [
   { to: '/', label: 'Início' },
@@ -20,7 +21,7 @@ const links = [
     <div class="container-content grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
       <div>
         <div class="flex items-center gap-3">
-          <img src="/logo.png" alt="Logo Academia Spartan" class="h-10 w-auto" />
+          <img :src="base + 'logo.png'" alt="Logo Academia Spartan" class="h-10 w-auto" />
           <span class="font-display text-lg font-bold uppercase tracking-widest text-white">
             Academia <span class="text-primary">Spartan</span>
           </span>
