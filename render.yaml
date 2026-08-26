@@ -5,8 +5,9 @@ services:
     rootDir: .
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
-    pullRequestPreviewsEnabled: true
-    redirects:
-      - source: /*
+    previews:
+      generation: automatic
+    routes:
+      - type: rewrite
+        source: /*
         destination: /index.html
-        type: rewrite
