@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { users as seedUsers } from '@/data/users'
 import { loadStorage, saveStorage } from '@/utils/storage'
 import { uid } from '@/utils/format'
+import { isUsers } from '@/utils/validators'
 import type { AdminUser } from '@/types'
 
 const KEY = 'spartan.users'
@@ -22,7 +23,7 @@ function seed(): AdminUser[] {
 }
 
 export const useUsersStore = defineStore('users', () => {
-  const users = ref<AdminUser[]>(loadStorage(KEY, seed()))
+  const users = ref<AdminUser[]>(loadStorage(KEY, seed(), isUsers))
 
   function persist() {
     saveStorage(KEY, users.value)

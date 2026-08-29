@@ -2,14 +2,23 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useUsersStore } from '@/store/users'
 import { loadStorage, saveStorage } from '@/utils/storage'
+import { isAdminUser } from '@/utils/validators'
 import type { AdminUser } from '@/types'
 
 const TOKEN_KEY = 'spartan.token'
 const USER_KEY = 'spartan.session'
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref<string | null>(loadStorage<string | null>(TOKEN_KEY, null))
-  const user = ref<AdminUser | null>(loadStorage<AdminUser | null>(USER_KEY, null))
+  const token = ref<string | null>(
+    loadStorage<string | null>(
+      TOKEN_KEY,
+      null,
+      (v): v is string | null => v === null || typeof v === 'string',
+    ),
+  )
+  const user = ref<AdminUser | null>(
+    loadStorage<AdminUser | null>(USER_KEY, null, (v): v is AdminUser | null => v === null || isAdminUser(v)),
+  )
 
   const isAuthenticated = computed(() => token.value !== null && user.value !== null)
   const isAdmin = computed(() => user.value?.role === 'admin')

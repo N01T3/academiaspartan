@@ -28,6 +28,14 @@ const planForm = reactive<Omit<Plan, 'id'>>({
   active: true,
 })
 
+const txHeaders = [
+  { title: 'Descrição', key: 'description' },
+  { title: 'Categoria', key: 'category' },
+  { title: 'Data', key: 'date' },
+  { title: 'Valor', key: 'amount', align: 'end' },
+  { title: 'Ações', key: 'actions', sortable: false, align: 'end' },
+] as const
+
 function openTx() {
   txEditingId.value = null
   Object.assign(txForm, {
@@ -81,120 +89,113 @@ function removePlan(p: Plan) {
 
 <template>
   <div>
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-white">Finanças</h1>
-      <p class="mt-1 text-sm text-zinc-400">Visão geral financeira e gestão de lançamentos e planos.</p>
+    <div class="mb-4">
+      <h1 class="text-h5">Finanças</h1>
+      <p class="text-body-2 text-medium-emphasis mt-1">
+        Visão geral financeira e gestão de lançamentos e planos.
+      </p>
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <KpiCard label="Receita total" :value="formatCurrency(finance.totalIncome)" accent />
-      <KpiCard label="Despesas" :value="formatCurrency(finance.totalExpense)" />
-      <KpiCard label="Saldo" :value="formatCurrency(finance.balance)" />
-      <KpiCard label="Inadimplência" :value="`${finance.defaulters} alunos`" />
-    </div>
+    <v-row>
+      <v-col cols="12" sm="6" lg="3">
+        <KpiCard label="Receita total" :value="formatCurrency(finance.totalIncome)" accent />
+      </v-col>
+      <v-col cols="12" sm="6" lg="3">
+        <KpiCard label="Despesas" :value="formatCurrency(finance.totalExpense)" />
+      </v-col>
+      <v-col cols="12" sm="6" lg="3">
+        <KpiCard label="Saldo" :value="formatCurrency(finance.balance)" />
+      </v-col>
+      <v-col cols="12" sm="6" lg="3">
+        <KpiCard label="Inadimplência" :value="`${finance.defaulters} alunos`" />
+      </v-col>
+    </v-row>
 
-    <div class="mt-10">
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-bold text-white">Lançamentos</h2>
-        <button type="button" class="btn-primary" @click="openTx">Novo lançamento</button>
-      </div>
-      <div class="card overflow-x-auto p-0">
-        <table class="w-full text-left text-sm">
-          <thead class="border-b border-ink-500 text-xs uppercase tracking-wider text-zinc-400">
-            <tr>
-              <th class="px-4 py-3">Descrição</th>
-              <th class="px-4 py-3">Categoria</th>
-              <th class="px-4 py-3">Data</th>
-              <th class="px-4 py-3 text-right">Valor</th>
-              <th class="px-4 py-3 text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-ink-600">
-            <tr v-for="t in finance.transactions" :key="t.id" class="hover:bg-ink-700/50">
-              <td class="px-4 py-3 font-medium text-white">{{ t.description }}</td>
-              <td class="px-4 py-3 text-zinc-300">{{ t.category }}</td>
-              <td class="px-4 py-3 text-zinc-300">{{ formatDate(t.date) }}</td>
-              <td
-                class="px-4 py-3 text-right font-semibold"
-                :class="t.type === 'income' ? 'text-green-400' : 'text-red-400'"
+    <div class="d-flex align-center justify-space-between mt-8 mb-3">
+      <h2 class="text-subtitle-1 font-weight-bold">Lançamentos</h2>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openTx">Novo lançamento</v-btn>
+    </div>
+    <v-card>
+      <v-data-table :headers="txHeaders" :items="finance.transactions" :items-per-page="-1" hover>
+        <template #item.date="{ item }">{{ formatDate(item.date) }}</template>
+        <template #item.amount="{ item }">
+          <span :class="item.type === 'income' ? 'text-success' : 'text-error'" class="font-weight-bold">
+            {{ item.type === 'income' ? '+' : '-' }}{{ formatCurrency(item.amount) }}
+          </span>
+        </template>
+        <template #item.actions="{ item }">
+          <div class="d-flex justify-end ga-1">
+            <v-btn size="small" variant="text" color="secondary" @click="openTxEdit(item)">Editar</v-btn>
+            <v-btn size="small" variant="text" color="error" @click="removeTx(item)">Excluir</v-btn>
+          </div>
+        </template>
+      </v-data-table>
+    </v-card>
+
+    <div class="d-flex align-center justify-space-between mt-8 mb-3">
+      <h2 class="text-subtitle-1 font-weight-bold">Planos & Mensalidades</h2>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openPlan">Novo plano</v-btn>
+    </div>
+    <v-row>
+      <v-col v-for="p in finance.plans" :key="p.id" cols="12" sm="6" lg="3">
+        <v-card>
+          <v-card-text>
+            <div class="d-flex align-center justify-space-between">
+              <h3 class="text-subtitle-1 font-weight-bold">{{ p.name }}</h3>
+              <span
+                :class="p.active ? 'text-success' : 'text-medium-emphasis'"
+                class="text-caption text-uppercase"
               >
-                {{ t.type === 'income' ? '+' : '-' }}{{ formatCurrency(t.amount) }}
-              </td>
-              <td class="px-4 py-3 text-right">
-                <button type="button" class="mr-2 text-accent hover:underline" @click="openTxEdit(t)">
-                  Editar
-                </button>
-                <button type="button" class="text-red-400 hover:underline" @click="removeTx(t)">
-                  Excluir
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="mt-10">
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-bold text-white">Planos & Mensalidades</h2>
-        <button type="button" class="btn-primary" @click="openPlan">Novo plano</button>
-      </div>
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div v-for="p in finance.plans" :key="p.id" class="card">
-          <div class="flex items-center justify-between">
-            <h3 class="font-bold text-white">{{ p.name }}</h3>
-            <span :class="p.active ? 'text-green-400' : 'text-zinc-500'" class="text-xs uppercase">{{
-              p.active ? 'Ativo' : 'Inativo'
-            }}</span>
-          </div>
-          <p class="mt-2 font-display text-2xl font-bold text-primary">{{ formatCurrency(p.price) }}</p>
-          <p class="text-sm text-zinc-400">/ {{ p.period }}</p>
-          <div class="mt-4 flex justify-end gap-3 border-t border-ink-600 pt-3 text-sm">
-            <button type="button" class="text-accent hover:underline" @click="openPlanEdit(p)">Editar</button>
-            <button type="button" class="text-red-400 hover:underline" @click="removePlan(p)">Excluir</button>
-          </div>
-        </div>
-      </div>
-    </div>
+                {{ p.active ? 'Ativo' : 'Inativo' }}
+              </span>
+            </div>
+            <p class="display-3 mt-2 text-primary">{{ formatCurrency(p.price) }}</p>
+            <p class="text-body-2 text-medium-emphasis">/ {{ p.period }}</p>
+            <v-divider class="my-3" />
+            <div class="d-flex justify-end ga-1">
+              <v-btn size="small" variant="text" color="secondary" @click="openPlanEdit(p)">Editar</v-btn>
+              <v-btn size="small" variant="text" color="error" @click="removePlan(p)">Excluir</v-btn>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <BaseModal
       :open="txModal"
       :title="txEditingId ? 'Editar lançamento' : 'Novo lançamento'"
       @close="txModal = false"
     >
-      <form class="space-y-4" @submit.prevent="saveTx">
-        <div>
-          <label class="label">Descrição</label>
-          <input v-model="txForm.description" type="text" required class="input" />
+      <v-form @submit.prevent="saveTx">
+        <v-text-field v-model="txForm.description" label="Descrição" />
+        <v-text-field v-model="txForm.category" label="Categoria" />
+        <v-row>
+          <v-col cols="12" sm="6">
+            <v-text-field v-model="txForm.date" label="Data" type="date" />
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-text-field
+              v-model.number="txForm.amount"
+              label="Valor (R$)"
+              type="number"
+              step="0.01"
+              min="0"
+            />
+          </v-col>
+        </v-row>
+        <v-select
+          v-model="txForm.type"
+          label="Tipo"
+          :items="[
+            { title: 'Receita', value: 'income' },
+            { title: 'Despesa', value: 'expense' },
+          ]"
+        />
+        <div class="d-flex justify-end ga-2">
+          <v-btn variant="outlined" @click="txModal = false">Cancelar</v-btn>
+          <v-btn type="submit" color="primary">Salvar</v-btn>
         </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label class="label">Categoria</label>
-            <input v-model="txForm.category" type="text" required class="input" />
-          </div>
-          <div>
-            <label class="label">Data</label>
-            <input v-model="txForm.date" type="date" required class="input" />
-          </div>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label class="label">Valor (R$)</label>
-            <input v-model.number="txForm.amount" type="number" step="0.01" min="0" required class="input" />
-          </div>
-          <div>
-            <label class="label">Tipo</label>
-            <select v-model="txForm.type" class="input">
-              <option value="income">Receita</option>
-              <option value="expense">Despesa</option>
-            </select>
-          </div>
-        </div>
-        <div class="flex justify-end gap-3">
-          <button type="button" class="btn-outline" @click="txModal = false">Cancelar</button>
-          <button type="submit" class="btn-primary">Salvar</button>
-        </div>
-      </form>
+      </v-form>
     </BaseModal>
 
     <BaseModal
@@ -202,34 +203,39 @@ function removePlan(p: Plan) {
       :title="planEditingId ? 'Editar plano' : 'Novo plano'"
       @close="planModal = false"
     >
-      <form class="space-y-4" @submit.prevent="savePlan">
-        <div>
-          <label class="label">Nome</label>
-          <input v-model="planForm.name" type="text" required class="input" />
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label class="label">Preço (R$)</label>
-            <input v-model.number="planForm.price" type="number" step="0.01" min="0" required class="input" />
-          </div>
-          <div>
-            <label class="label">Período</label>
-            <select v-model="planForm.period" class="input">
-              <option value="mensal">Mensal</option>
-              <option value="trimestral">Trimestral</option>
-              <option value="anual">Anual</option>
-            </select>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
+      <v-form @submit.prevent="savePlan">
+        <v-text-field v-model="planForm.name" label="Nome" />
+        <v-row>
+          <v-col cols="12" sm="6">
+            <v-text-field
+              v-model.number="planForm.price"
+              label="Preço (R$)"
+              type="number"
+              step="0.01"
+              min="0"
+            />
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-select
+              v-model="planForm.period"
+              label="Período"
+              :items="[
+                { title: 'Mensal', value: 'mensal' },
+                { title: 'Trimestral', value: 'trimestral' },
+                { title: 'Anual', value: 'anual' },
+              ]"
+            />
+          </v-col>
+        </v-row>
+        <div class="d-flex align-center ga-3">
           <ToggleSwitch v-model="planForm.active" />
-          <span class="text-sm text-zinc-300">Ativo</span>
+          <span class="text-body-2">Ativo</span>
         </div>
-        <div class="flex justify-end gap-3">
-          <button type="button" class="btn-outline" @click="planModal = false">Cancelar</button>
-          <button type="submit" class="btn-primary">Salvar</button>
+        <div class="d-flex justify-end ga-2 mt-2">
+          <v-btn variant="outlined" @click="planModal = false">Cancelar</v-btn>
+          <v-btn type="submit" color="primary">Salvar</v-btn>
         </div>
-      </form>
+      </v-form>
     </BaseModal>
   </div>
 </template>

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: academia-spartan
+    runtime: static
+    rootDir: .
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    previews:
+      generation: automatic
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

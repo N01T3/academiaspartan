@@ -13,10 +13,15 @@ const router = useRouter()
 
 const form = reactive({ username: '', password: '' })
 const error = ref('')
+const valid = ref(false)
+const showPassword = ref(false)
 const base = import.meta.env.BASE_URL
+
+const required = (v: string) => !!v || 'Campo obrigatório'
 
 function submit() {
   error.value = ''
+  if (!valid.value) return
   const ok = auth.login(form.username, form.password)
   if (!ok) {
     error.value = 'Usuário ou senha inválidos.'
@@ -28,52 +33,61 @@ function submit() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-ink px-4">
-    <div class="w-full max-w-md">
-      <div class="mb-8 flex flex-col items-center gap-4 text-center">
-        <img :src="base + 'logo.png'" alt="Logo Academia Spartan" class="h-16 w-auto" />
-        <div>
-          <h1 class="text-2xl font-bold text-white">Área administrativa</h1>
-          <p class="mt-2 text-sm text-zinc-400">Acesso restrito à equipe Spartan.</p>
-        </div>
+  <div class="login-wrap">
+    <v-card class="login-card pa-8" max-width="440" width="100%">
+      <div class="text-center mb-6">
+        <img :src="base + 'logo.png'" alt="Logo Academia Spartan" class="login-logo" />
+        <h1 class="text-h5 mt-4">Área administrativa</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">Acesso restrito à equipe Spartan.</p>
       </div>
 
-      <form class="card space-y-5" @submit.prevent="submit">
-        <div>
-          <label class="label" for="username">Usuário</label>
-          <input
-            id="username"
-            v-model="form.username"
-            type="text"
-            required
-            class="input"
-            autocomplete="username"
-            placeholder="admin"
-          />
-        </div>
-        <div>
-          <label class="label" for="password">Senha</label>
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            required
-            class="input"
-            autocomplete="current-password"
-            placeholder="••••••••"
-          />
-        </div>
+      <v-form v-model="valid" @submit.prevent="submit">
+        <v-text-field
+          v-model="form.username"
+          label="Usuário"
+          :rules="[required]"
+          autocomplete="username"
+          prepend-inner-icon="mdi-account"
+        />
+        <v-text-field
+          v-model="form.password"
+          :type="showPassword ? 'text' : 'password'"
+          label="Senha"
+          :rules="[required]"
+          autocomplete="current-password"
+          prepend-inner-icon="mdi-lock-outline"
+          :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+          @click:append-inner="showPassword = !showPassword"
+        />
 
-        <p v-if="error" class="rounded border border-red-600 bg-red-600/10 px-4 py-3 text-sm text-red-400">
-          {{ error }}
-        </p>
+        <v-alert v-if="error" type="error" class="mb-4" :text="error" />
 
-        <UiButton type="submit" class="w-full">Entrar</UiButton>
-      </form>
+        <UiButton type="submit" size="large" block>Entrar</UiButton>
+      </v-form>
 
-      <p class="mt-6 text-center text-sm text-zinc-500">
-        <RouterLink to="/" class="transition-colors hover:text-primary">← Voltar ao site</RouterLink>
-      </p>
-    </div>
+      <div class="text-center mt-6">
+        <RouterLink to="/" class="text-body-2 text-medium-emphasis text-decoration-none">
+          ← Voltar ao site
+        </RouterLink>
+      </div>
+    </v-card>
   </div>
 </template>
+
+<style scoped>
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(225, 29, 46, 0.18), transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(249, 115, 22, 0.12), transparent 45%), #0b0d10;
+}
+
+.login-logo {
+  height: 64px;
+  width: auto;
+}
+</style>

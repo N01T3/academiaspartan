@@ -14,4 +14,11 @@ export default [
   ...pluginVue.configs['flat/essential'],
   ...vueTsEslintConfig(),
   prettierConfig,
+  {
+    name: 'app/rules',
+    files: ['**/*.{ts,mts,tsx,vue}'],
+    rules: {
+      'vue/valid-v-slot': ['error', { allowModifiers: true }],
+    },
+  },
 ]

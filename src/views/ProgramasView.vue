@@ -4,6 +4,7 @@ import SectionTitle from '@/components/ui/SectionTitle.vue'
 import ProgramCard from '@/components/sections/ProgramCard.vue'
 import TestimonialCard from '@/components/sections/TestimonialCard.vue'
 import { useMeta } from '@/composables/useMeta'
+import { useReveal } from '@/composables/useReveal'
 
 useMeta({
   title: 'Programas & Bodybuilding — Academia Spartan',
@@ -11,11 +12,12 @@ useMeta({
 })
 
 const content = useContentStore()
+const { reveal } = useReveal()
 </script>
 
 <template>
   <div>
-    <section class="border-b border-ink-600 bg-ink-800 py-16 sm:py-20">
+    <section class="page-hero">
       <div class="container-content">
         <SectionTitle
           eyebrow="Modalidades"
@@ -26,18 +28,42 @@ const content = useContentStore()
     </section>
 
     <section class="section">
-      <div class="container-content grid gap-6 sm:grid-cols-2">
-        <ProgramCard v-for="p in content.programs" :key="p.id" :program="p" />
+      <div class="container-content">
+        <v-row>
+          <v-col v-for="(p, i) in content.programs" :key="p.id" cols="12" sm="6">
+            <div class="reveal h-100" v-intersect="reveal" :data-reveal-delay="i * 90">
+              <ProgramCard :program="p" />
+            </div>
+          </v-col>
+        </v-row>
       </div>
     </section>
 
-    <section class="section bg-ink-800">
+    <section class="section bg-surface">
       <div class="container-content">
-        <SectionTitle eyebrow="Casos de sucesso" title="Quem treina aqui, evolui" align="center" />
-        <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <TestimonialCard v-for="t in content.testimonials" :key="t.id" :testimonial="t" />
+        <div class="reveal" v-intersect="reveal">
+          <SectionTitle eyebrow="Casos de sucesso" title="Quem treina aqui, evolui" align="center" />
         </div>
+        <v-row class="mt-8">
+          <v-col v-for="(t, i) in content.testimonials" :key="t.id" cols="12" sm="6" lg="4">
+            <div class="reveal h-100" v-intersect="reveal" :data-reveal-delay="i * 90">
+              <TestimonialCard :testimonial="t" />
+            </div>
+          </v-col>
+        </v-row>
       </div>
     </section>
   </div>
 </template>
+
+<style scoped>
+.page-hero {
+  padding: 4rem 0;
+  background: linear-gradient(180deg, #14181e 0%, #0b0d10 100%);
+  border-bottom: 1px solid #1a1f27;
+}
+
+.bg-surface {
+  background-color: #0f1216;
+}
+</style>

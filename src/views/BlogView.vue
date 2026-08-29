@@ -4,6 +4,7 @@ import { useContentStore } from '@/store/content'
 import SectionTitle from '@/components/ui/SectionTitle.vue'
 import BlogCard from '@/components/sections/BlogCard.vue'
 import { useMeta } from '@/composables/useMeta'
+import { useReveal } from '@/composables/useReveal'
 
 useMeta({
   title: 'Blog — Academia Spartan',
@@ -11,6 +12,7 @@ useMeta({
 })
 
 const content = useContentStore()
+const { reveal } = useReveal()
 const category = ref('Todos')
 
 const categories = computed(() => {
@@ -27,7 +29,7 @@ const filtered = computed(() => {
 
 <template>
   <div>
-    <section class="border-b border-ink-600 bg-ink-800 py-16 sm:py-20">
+    <section class="page-hero">
       <div class="container-content">
         <SectionTitle
           eyebrow="Blog"
@@ -39,28 +41,41 @@ const filtered = computed(() => {
 
     <section class="section">
       <div class="container-content">
-        <div class="mb-10 flex flex-wrap gap-2">
-          <button
-            v-for="cat in categories"
-            :key="cat"
-            type="button"
-            class="rounded-full border px-4 py-2 text-sm font-semibold uppercase tracking-wider transition-colors"
-            :class="
-              category === cat
-                ? 'border-primary bg-primary text-white'
-                : 'border-ink-500 text-zinc-300 hover:border-primary hover:text-primary'
-            "
-            @click="category = cat"
-          >
-            {{ cat }}
-          </button>
+        <div class="reveal mb-8" v-intersect="reveal">
+          <v-btn-toggle v-model="category" color="primary" mandatory rounded="xl" class="flex-wrap">
+            <v-btn
+              v-for="cat in categories"
+              :key="cat"
+              :value="cat"
+              variant="tonal"
+              class="text-uppercase filter-btn"
+            >
+              {{ cat }}
+            </v-btn>
+          </v-btn-toggle>
         </div>
 
-        <div v-if="filtered.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <BlogCard v-for="post in filtered" :key="post.id" :post="post" />
-        </div>
-        <p v-else class="text-zinc-400">Nenhum artigo publicado nesta categoria ainda.</p>
+        <v-row v-if="filtered.length">
+          <v-col v-for="(post, i) in filtered" :key="post.id" cols="12" sm="6" lg="4">
+            <div class="reveal h-100" v-intersect="reveal" :data-reveal-delay="i * 90">
+              <BlogCard :post="post" />
+            </div>
+          </v-col>
+        </v-row>
+        <p v-else class="text-medium-emphasis">Nenhum artigo publicado nesta categoria ainda.</p>
       </div>
     </section>
   </div>
 </template>
+
+<style scoped>
+.page-hero {
+  padding: 4rem 0;
+  background: linear-gradient(180deg, #14181e 0%, #0b0d10 100%);
+  border-bottom: 1px solid #1a1f27;
+}
+
+.filter-btn {
+  margin: 4px;
+}
+</style>
